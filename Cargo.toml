@@ -1,0 +1,15 @@
+[package]
+name = "restaurant_customers"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[lib]
+name = "restaurant_customers"
+path = "src/lib.rs"
+
+
+[build-dependencies]
+walkdir = "2.3"
+
+[dependencies]

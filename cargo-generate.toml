@@ -1,0 +1,7 @@
+[template]
+name = "Rust Project Template"
+description = "A customizable Rust project template with dynamic function name support."
+authors = ["Your Name <your.email@example.com>"]
+
+[placeholders]
+function_name = { type = "string", prompt = "Enter the name of the function to be processed", default = "cses_challenge" }
