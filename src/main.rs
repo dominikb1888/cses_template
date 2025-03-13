@@ -1,6 +1,6 @@
 /// DO NOT CHANGE FUNCTION NAME AND INPUT,
 /// DO ADD OUTPUT TYPE
-fn {{function_name}}(input: &str) -> String {
+fn process_{{project-name}}(input: &str) -> String {
     ()
 }
 
@@ -9,7 +9,7 @@ fn {{function_name}}(input: &str) -> String {
 ///
 // src/lib.rs or src/main.rs
 pub fn process(input: &str) -> String {
-    {{function_name}}(&input)
+    process_{{project_name}}(&input)
 }
 
 fn main() {
