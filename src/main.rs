@@ -1,7 +1,7 @@
 /// DO NOT CHANGE FUNCTION NAME AND INPUT,
 /// DO ADD OUTPUT TYPE
 fn process_{{project-name}}(input: &str) -> String {
-    ()
+    "".to_string()
 }
 
 ///
@@ -9,7 +9,7 @@ fn process_{{project-name}}(input: &str) -> String {
 ///
 // src/lib.rs or src/main.rs
 pub fn process(input: &str) -> String {
-    process_{{project_name}}(&input)
+    process_{{project-name}}(&input)
 }
 
 fn main() {
