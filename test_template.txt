@@ -1,5 +1,5 @@
 #[test]
-fn test_{{ test_name }}() {{
+fn test_{test_name}() {{
     let input = r#"{{ input_content }}"#;
     let expected_output = r#"{{ expected_output }}"#;
 
