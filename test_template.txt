@@ -18,7 +18,7 @@ fn test_{test_name}() {
     let output = binding;
 
     // 4. Convert stdout bytes to a String
-    let actual_stdout = String::from_utf8_lossy(&output.stdout());
+    let actual_stdout = String::from_utf8_lossy(&assert_obj.get_output().stdout);
 
     // 5. Compare results
     assert_eq!(
