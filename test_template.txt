@@ -1,23 +1,17 @@
 #[test]
 fn test_{test_name}() {
-    use assert_cmd::Command;
-    
     let input = r#"{input_content}"#;
     let expected_output = r#"{expected_output}"#;
 
-    // 1. Initialize the command pointing to your binary
     let mut cmd = Command::cargo_bin("{bin_name}").unwrap();
 
-    // 2. Feed stdin, capture result, and ensure success
     let assert_obj = cmd
         .write_stdin(input)
         .assert()
         .success();
 
-    // 3. Convert stdout bytes to a String from the Output
     let actual_stdout = String::from_utf8_lossy(&assert_obj.get_output().stdout);
 
-    // 4. Compare results
     assert_eq!(
         actual_stdout.trim(),
         expected_output.trim(),

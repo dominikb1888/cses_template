@@ -7,12 +7,13 @@ use reqwest::redirect::Policy;
 use scraper::{Html, Selector};
 
 fn main() {
-    // Define the input/output directory
     dotenvy::dotenv().ok();
 
     let test_dir = "tests/inout";
     
-    // Fetch from env (either from .env file or system env)
+    // 1. Get Project/Binary Name dynamically
+    let bin_name = env::var("CARGO_PKG_NAME").expect("Failed to get package name");
+    
     let problem_id = env::var("CSES_PROBLEM_ID").expect("CSES_PROBLEM_ID not set");
     let username = env::var("CSES_USERNAME").expect("CSES_USER not set");
     let password = env::var("CSES_PASSWORD").expect("CSES_PASS not set");
@@ -25,7 +26,6 @@ fn main() {
     let out_dir = env::var("OUT_DIR").unwrap();
     let generated_test_file = Path::new(&out_dir).join("generated_tests.rs");
 
-    // Collect all .in and .out file pairs
     let entries = fs::read_dir(test_dir).expect("Failed to read test directory");
     let mut test_cases = vec![];
 
@@ -35,19 +35,17 @@ fn main() {
             let output_file = path.with_extension("out");
             if output_file.exists() {
                 test_cases.push((path, output_file));
-            } else {
-                panic!("No matching .out file for {}", path.display());
             }
         }
     }
 
-    // Load the test function template from the file
+    // 2. Load and Replace Placeholders
     let test_template = fs::read_to_string("test_template.txt")
         .expect("Failed to read test template file");
 
-    // Generate Rust test code
     let mut test_code = String::new();
-    test_code.push_str("use super::*;\n\n");
+    // We no longer need 'use super::*' because this will run in an integration test file
+    test_code.push_str("use assert_cmd::Command;\n\n");
 
     for (input_file, output_file) in test_cases {
         let test_name = input_file
@@ -60,20 +58,24 @@ fn main() {
         let input_content = fs::read_to_string(&input_file).expect("Failed to read input file");
         let expected_output = fs::read_to_string(&output_file).expect("Failed to read output file");
 
-        // Format the test template with actual values
-        test_code.push_str(&test_template
+        // Format the template: replace {bin_name} with the actual pkg name
+        let formatted_test = test_template
             .replace("{test_name}", &test_name)
+            .replace("{bin_name}", &bin_name) 
             .replace("{input_content}", &escape_string(&input_content))
             .replace("{expected_output}", &escape_string(&expected_output))
-            .replace("{input_file}", &input_file.display().to_string()));
+            .replace("{input_file}", &input_file.display().to_string());
+            
+        test_code.push_str(&formatted_test);
     }
 
-    // Write the generated test code to a file
     fs::write(&generated_test_file, test_code).expect("Failed to write generated test file");
+    
+    // Tell cargo to rerun if tests or the template change
     println!("cargo:rerun-if-changed={}", test_dir);
+    println!("cargo:rerun-if-changed=test_template.txt");
 }
 
-/// Helper function to escape strings for use in Rust raw string literals
 fn escape_string(s: &str) -> String {
     s.replace("\"", "\\\"")
 }
