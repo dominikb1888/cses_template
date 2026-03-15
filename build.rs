@@ -1,6 +1,9 @@
 use std::env;
 use std::fs;
+use std::io::Cursor;
 use std::path::Path;
+use reqwest::blocking::Client;
+use scraper::{Html, Selector};
 
 fn main() {
     // Define the input/output directory
