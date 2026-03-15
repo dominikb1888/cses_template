@@ -81,29 +81,44 @@ fn download_tests(id: &str, user: &str, pass: &str, target: &str) {
     let client = Client::builder()
         .cookie_store(true)
         .user_agent("Mozilla/5.0 (Rust Build Script)")
+        .redirect(Policy::limited(50))
         .build()
         .unwrap();
 
-    // LOGIN
-    let login_page = client.get("https://cses.fi/login").send().unwrap().text().unwrap();
-    let token = extract_token(&login_page);
+   
+    // In your download_cses_tests function:
+
+    // 1. LOGIN PHASE
+    let login_url = "https://cses.fi/login";
+    let login_page = client.get(login_url).send().unwrap().text().unwrap();
+    let login_token = extract_token(&login_page); // Token #1
 
     let mut login_form = std::collections::HashMap::new();
-    login_form.insert("csrf_token", token);
+    login_form.insert("csrf_token", login_token);
     login_form.insert("nick", user.to_string());
     login_form.insert("pass", pass.to_string());
-    client.post("https://cses.fi/login").form(&login_form).send().unwrap();
 
-    // DOWNLOAD
-    let task_url = format!("https://cses.fi/problemset/task/{}", id);
+    // Submit login - redirect policy handles the rest
+    let login_response = client.post(login_url)
+        .form(&login_form)
+        .send()
+        .expect("Login request failed");
+
+    // 2. DOWNLOAD PHASE (Requires a NEW token from the task page)
+    let task_url = format!("https://cses.fi/problemset/tests/{}", id);
     let task_page = client.get(&task_url).send().unwrap().text().unwrap();
-    let dl_token = extract_token(&task_page);
+
+    // Critical: Extract the NEW token specifically for the download form
+    let download_token = extract_token(&task_page); // Token #2
 
     let mut dl_form = std::collections::HashMap::new();
-    dl_form.insert("csrf_token", dl_token);
+    dl_form.insert("csrf_token", download_token);
     dl_form.insert("download", "true".to_string());
 
-    let mut response = client.post(&task_url).form(&dl_form).send().expect("Download failed");
+    let mut response = client.post(&task_url)
+        .form(&dl_form)
+        .send()
+        .expect("Download POST failed");
 
     // UNZIP
     let mut content = Vec::new();
@@ -120,6 +135,25 @@ fn download_tests(id: &str, user: &str, pass: &str, target: &str) {
 
 fn extract_token(html: &str) -> String {
     let doc = Html::parse_document(html);
+    // Use a more specific selector
     let sel = Selector::parse("input[name='csrf_token']").unwrap();
-    doc.select(&sel).next().unwrap().value().attr("value").unwrap().to_string()
+    
+    let token = doc.select(&sel)
+        .next()
+        .map(|el| el.value().attr("value"))
+        .flatten()
+        .map(|s| s.to_string());
+
+    match token {
+        Some(t) => {
+            println!("cargo:warning=Successfully extracted CSRF token: {}", t);
+            t
+        },
+        None => {
+            // Debug the raw HTML to stderr if extraction fails
+            eprintln!("Failed HTML Content:\n{}", html);
+            panic!("CSRF token not found - page structure might have changed or HTML is malformed");
+        }
+    }
 }
+
