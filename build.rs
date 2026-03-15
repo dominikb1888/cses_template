@@ -4,7 +4,20 @@ use std::path::Path;
 
 fn main() {
     // Define the input/output directory
+    dotenvy::dotenv().ok();
+
     let test_dir = "tests/inout";
+    
+    // Fetch from env (either from .env file or system env)
+    let problem_id = env::var("CSES_PROBLEM_ID").expect("CSES_PROBLEM_ID not set");
+    let username = env::var("CSES_USER").expect("CSES_USER not set");
+    let password = env::var("CSES_PASS").expect("CSES_PASS not set");
+
+    if !Path::new(test_dir).exists() || fs::read_dir(test_dir).map(|d| d.count()).unwrap_or(0) == 0 {
+        fs::create_dir_all(test_dir).unwrap();
+        download_tests(&problem_id, &username, &password, test_dir);
+    }
+
     let out_dir = env::var("OUT_DIR").unwrap();
     let generated_test_file = Path::new(&out_dir).join("generated_tests.rs");
 
@@ -59,4 +72,51 @@ fn main() {
 /// Helper function to escape strings for use in Rust raw string literals
 fn escape_string(s: &str) -> String {
     s.replace("\"", "\\\"")
+}
+
+fn download_tests(id: &str, user: &str, pass: &str, target: &str) {
+    let client = Client::builder()
+        .cookie_store(true)
+        .user_agent("Mozilla/5.0 (Rust Build Script)")
+        .build()
+        .unwrap();
+
+    // LOGIN
+    let login_page = client.get("https://cses.fi/login").send().unwrap().text().unwrap();
+    let token = extract_token(&login_page);
+
+    let mut login_form = std::collections::HashMap::new();
+    login_form.insert("csrf_token", token);
+    login_form.insert("nick", user.to_string());
+    login_form.insert("pass", pass.to_string());
+    client.post("https://cses.fi/login").form(&login_form).send().unwrap();
+
+    // DOWNLOAD
+    let task_url = format!("https://cses.fi/problemset/task/{}", id);
+    let task_page = client.get(&task_url).send().unwrap().text().unwrap();
+    let dl_token = extract_token(&task_page);
+
+    let mut dl_form = std::collections::HashMap::new();
+    dl_form.insert("csrf_token", dl_token);
+    dl_form.insert("download", "true".to_string());
+
+    let mut response = client.post(&task_url).form(&dl_form).send().expect("Download failed");
+
+    // UNZIP
+    let mut content = Vec::new();
+    std::io::copy(&mut response, &mut content).unwrap();
+    let mut archive = zip::ZipArchive::new(Cursor::new(content)).unwrap();
+
+    for i in 0..archive.len() {
+        let mut file = archive.by_index(i).unwrap();
+        let outpath = Path::new(target).join(file.name());
+        let mut outfile = fs::File::create(&outpath).unwrap();
+        std::io::copy(&mut file, &mut outfile).unwrap();
+    }
+}
+
+fn extract_token(html: &str) -> String {
+    let doc = Html::parse_document(html);
+    let sel = Selector::parse("input[name='csrf_token']").unwrap();
+    doc.select(&sel).next().unwrap().value().attr("value").unwrap().to_string()
 }

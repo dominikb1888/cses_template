@@ -4,3 +4,6 @@ description = "A customizable Rust project template with dynamic function name s
 authors = ["Your Name <your.email@example.com>"]
 
 [placeholders]
+cses_username = { type = "string", prompt = "Enter your CSES username:" }
+cses_password = { type = "string", prompt = "Enter your CSES password:" }
+problem_id = { type = "string", prompt = "Enter CSES Problem ID (e.g., 1621):", default = "1621" }
