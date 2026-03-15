@@ -1,17 +1,7 @@
-/// DO NOT CHANGE FUNCTION NAME, INPUT OR OUTPUT,
-/// WRITES TO STDOUT
-fn process<W: std::io::Write>(_input: &str, _writer: &mut W) {
-    todo!();
-}
-
-///
-/// DO CHANGE CODE BELOW THIS LINE
-///
 fn main() {
     // Read from stdin and write to stdout
     let input = std::io::read_to_string(std::io::stdin()).unwrap();
-    let mut buffer = Vec::new();
-    process(&input, &mut buffer);
+    todo!();
 }
 
 #[cfg(test)]
