@@ -13,8 +13,8 @@ fn main() {
     
     // Fetch from env (either from .env file or system env)
     let problem_id = env::var("CSES_PROBLEM_ID").expect("CSES_PROBLEM_ID not set");
-    let username = env::var("CSES_USER").expect("CSES_USER not set");
-    let password = env::var("CSES_PASS").expect("CSES_PASS not set");
+    let username = env::var("CSES_USERNAME").expect("CSES_USER not set");
+    let password = env::var("CSES_PASSWORD").expect("CSES_PASS not set");
 
     if !Path::new(test_dir).exists() || fs::read_dir(test_dir).map(|d| d.count()).unwrap_or(0) == 0 {
         fs::create_dir_all(test_dir).unwrap();
