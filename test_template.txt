@@ -14,9 +14,8 @@ fn test_{test_name}() {
         .assert();
 
     // 3. Ensure the process exited successfully
-    let output = assert
-        .success()
-        .get_output();
+    let binding = assert.success();
+    let output = binding
 
     // 4. Convert stdout bytes to a String
     let actual_stdout = String::from_utf8_lossy(&output.stdout);
