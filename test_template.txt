@@ -6,21 +6,18 @@ fn test_{test_name}() {
     let expected_output = r#"{expected_output}"#;
 
     // 1. Initialize the command pointing to your binary
-    let mut cmd = Command::cargo_bin("weird_algorithm").unwrap();
+    let mut cmd = Command::cargo_bin("{bin_name}").unwrap();
 
-    // 2. Feed stdin and capture the result
-    let assert = cmd
+    // 2. Feed stdin, capture result, and ensure success
+    let assert_obj = cmd
         .write_stdin(input)
-        .assert();
+        .assert()
+        .success();
 
-    // 3. Ensure the process exited successfully
-    let binding = assert.success();
-    let output = binding;
-
-    // 4. Convert stdout bytes to a String
+    // 3. Convert stdout bytes to a String from the Output
     let actual_stdout = String::from_utf8_lossy(&assert_obj.get_output().stdout);
 
-    // 5. Compare results
+    // 4. Compare results
     assert_eq!(
         actual_stdout.trim(),
         expected_output.trim(),
