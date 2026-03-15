@@ -1,3 +1,4 @@
 # .gitignore
+.env
 /target
 tests/inout/*.zip
