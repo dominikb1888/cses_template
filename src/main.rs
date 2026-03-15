@@ -1,22 +1,17 @@
-/// DO NOT CHANGE FUNCTION NAME AND INPUT,
-/// DO ADD OUTPUT TYPE
-fn process_{{project-name}}(input: &str) -> String {
-    "".to_string()
+/// DO NOT CHANGE FUNCTION NAME, INPUT OR OUTPUT,
+/// WRITES TO STDOUT
+fn process<W: std::io::Write>(input: &str, writer: &mut W) {
+
 }
 
 ///
 /// DO CHANGE CODE BELOW THIS LINE
 ///
-// src/lib.rs or src/main.rs
-pub fn process(input: &str) -> String {
-    process_{{project-name}}(&input)
-}
-
 fn main() {
     // Read from stdin and write to stdout
     let input = std::io::read_to_string(std::io::stdin()).unwrap();
-    let output = process(&input);
-    println!("{}", output);
+    let mut buffer = Vec::new();
+    process(&input, &mut buffer);
 }
 
 #[cfg(test)]

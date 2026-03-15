@@ -3,10 +3,14 @@ fn test_{test_name}() {
     let input = r#"{input_content}"#;
     let expected_output = r#"{expected_output}"#;
 
-    // Call the process function with the input
-    let output = process(input);
+    // Create a buffer to capture the output
+    let mut buffer = Vec::new();
+    
+    // Call the function passing the buffer as the writer
+    process(input, &mut buffer);
 
-    // Compare the output with the expected result
+    let output = String::from_utf8(buffer).expect("Output was not valid UTF-8");
+
     assert_eq!(
         output.trim(),
         expected_output.trim(),
@@ -16,4 +20,3 @@ fn test_{test_name}() {
         output.trim()
     );
 }
-
