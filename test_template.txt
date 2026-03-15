@@ -15,10 +15,10 @@ fn test_{test_name}() {
 
     // 3. Ensure the process exited successfully
     let binding = assert.success();
-    let output = binding
+    let output = binding;
 
     // 4. Convert stdout bytes to a String
-    let actual_stdout = String::from_utf8_lossy(&output.stdout);
+    let actual_stdout = String::from_utf8_lossy(&output.stdout());
 
     // 5. Compare results
     assert_eq!(
