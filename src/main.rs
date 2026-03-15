@@ -1,7 +1,7 @@
 /// DO NOT CHANGE FUNCTION NAME, INPUT OR OUTPUT,
 /// WRITES TO STDOUT
-fn process<W: std::io::Write>(input: &str, writer: &mut W) {
-
+fn process<W: std::io::Write>(_input: &str, _writer: &mut W) {
+    todo()!
 }
 
 ///

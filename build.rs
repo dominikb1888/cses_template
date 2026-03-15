@@ -100,7 +100,7 @@ fn download_tests(id: &str, user: &str, pass: &str, target: &str) {
     login_form.insert("pass", pass.to_string());
 
     // Submit login - redirect policy handles the rest
-    let login_response = client.post(login_url)
+    let _login_response = client.post(login_url)
         .form(&login_form)
         .send()
         .expect("Login request failed");

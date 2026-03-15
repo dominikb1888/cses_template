@@ -17,5 +17,5 @@ zip = "0.6"
 dotenvy = "0.15" # Better than 'dotenv'
 
 # Ensure these files are processed and included
-[template]
+[gen]
 include = [".gitignore", ".env"]
